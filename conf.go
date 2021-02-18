@@ -4,61 +4,64 @@ import (
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
-	"time"
 )
 
 // Структура конфигурационного файла
 type Config struct {
 	Imap struct {
-		Username       string        `yaml:"username"`
-		Password       string        `yaml:"password"`
-		Server         string        `yaml:"server"`
-		RefreshTimeout time.Duration `yaml:"refresh"`
+		Username       string `yaml:"username"`
+		Password       string `yaml:"password"`
+		Server         string `yaml:"server"`
+		RefreshTimeout int64  `yaml:"refresh"`
 	} `yaml:"imap"`
 	Telegram struct {
 		Token  string `yaml:"token"`
 		ChatId int64  `yaml:"chatid"`
 	} `yaml:"telegram"`
+	Asterisk struct {
+		Host     string `yaml:"host"`
+		Port     int    `yaml:"port"`
+		Username string `yaml:"username"`
+		Password string `yaml:"password"`
+	} `yaml:"asterisk"`
 	LogLevel string `yaml:"loglevel"`
 }
 
+// Читаем конфиг и устанавливаем параметры приложения
 func (a *MyApp) GetConfigYaml(filename string) {
 	log.Info("Reading config ", filename)
-
-	var conf Config
 
 	yamlFile, err := ioutil.ReadFile(filename)
 	if err != nil {
 		log.Fatalf("Error: %v\n", err)
 	}
-	err = yaml.Unmarshal(yamlFile, &conf)
+	err = yaml.Unmarshal(yamlFile, &a.config)
 	if err != nil {
 		log.Fatalf("Error: %v\n", err)
 	}
 
-	switch conf.LogLevel {
+	a.logLevel = setLogLevel(a.config.LogLevel)
+}
+
+// Устанавливаем уровень журналирования событий в приложении
+func setLogLevel(confLogLevel string) log.Level {
+	var result log.Level
+	switch confLogLevel {
 	case "debug":
-		a.logLevel = log.DebugLevel
+		result = log.DebugLevel
 	case "info":
-		a.logLevel = log.InfoLevel
+		result = log.InfoLevel
 	case "warn":
-		a.logLevel = log.WarnLevel
+		result = log.WarnLevel
 	case "error":
-		a.logLevel = log.ErrorLevel
+		result = log.ErrorLevel
 	case "fatal":
-		a.logLevel = log.FatalLevel
+		result = log.FatalLevel
 	default:
-		a.logLevel = log.InfoLevel
+		result = log.InfoLevel
 	}
 
-	a.imapUsername = conf.Imap.Username
-	a.imapPassword = conf.Imap.Password
-	a.imapServer = conf.Imap.Server
-	a.imapRefresh = conf.Imap.RefreshTimeout
-	a.botToken = conf.Telegram.Token
-	a.botChatId = conf.Telegram.ChatId
+	log.Info("Application logging level: ", result)
 
-	log.Info("LogLevel: ", conf.LogLevel)
-	log.Info("Telegram Token: ", conf.Telegram.Token)
-	log.Info("Telegram Chat ID: ", conf.Telegram.ChatId)
+	return result
 }
