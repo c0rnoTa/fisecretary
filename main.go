@@ -1,6 +1,7 @@
 package main
 
 import (
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	log "github.com/sirupsen/logrus"
 	"time"
 
@@ -14,6 +15,9 @@ type MyApp struct {
 	imapUsername string
 	imapPassword string
 	imapServer   string
+	bot          *tgbotapi.BotAPI
+	botToken     string
+	botChatId    int64
 }
 
 func main() {
@@ -24,6 +28,17 @@ func main() {
 
 	log.SetLevel(App.logLevel)
 
+	App.bot, err = tgbotapi.NewBotAPI(App.botToken)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if App.logLevel == log.DebugLevel {
+		App.bot.Debug = true
+	}
+
+	log.Infof("Authorized on account: %s (@%s)", App.bot.Self.FirstName, App.bot.Self.UserName)
+
 	log.Info("Connecting to imap://", App.imapServer)
 
 	// Connect to server
@@ -31,7 +46,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Info("Connected")
+	log.Info("IMAP Connected")
 
 	// Don't forget to logout
 	defer App.imapClient.Logout()

@@ -12,7 +12,11 @@ type Config struct {
 		Username string `yaml:"username"`
 		Password string `yaml:"password"`
 		Server   string `yaml:"server"`
-	}
+	} `yaml:"imap"`
+	Telegram struct {
+		Token  string `yaml:"token"`
+		ChatId int64  `yaml:"chatid"`
+	} `yaml:"telegram"`
 	LogLevel string `yaml:"loglevel"`
 }
 
@@ -48,6 +52,10 @@ func (a *MyApp) GetConfigYaml(filename string) {
 	a.imapUsername = conf.Imap.Username
 	a.imapPassword = conf.Imap.Password
 	a.imapServer = conf.Imap.Server
+	a.botToken = conf.Telegram.Token
+	a.botChatId = conf.Telegram.ChatId
 
 	log.Info("LogLevel: ", conf.LogLevel)
+	log.Info("Telegram Token: ", conf.Telegram.Token)
+	log.Info("Telegram Chat ID: ", conf.Telegram.ChatId)
 }
