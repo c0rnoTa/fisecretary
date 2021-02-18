@@ -4,14 +4,16 @@ import (
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"time"
 )
 
 // Структура конфигурационного файла
 type Config struct {
 	Imap struct {
-		Username string `yaml:"username"`
-		Password string `yaml:"password"`
-		Server   string `yaml:"server"`
+		Username       string        `yaml:"username"`
+		Password       string        `yaml:"password"`
+		Server         string        `yaml:"server"`
+		RefreshTimeout time.Duration `yaml:"refresh"`
 	} `yaml:"imap"`
 	Telegram struct {
 		Token  string `yaml:"token"`
@@ -52,6 +54,7 @@ func (a *MyApp) GetConfigYaml(filename string) {
 	a.imapUsername = conf.Imap.Username
 	a.imapPassword = conf.Imap.Password
 	a.imapServer = conf.Imap.Server
+	a.imapRefresh = conf.Imap.RefreshTimeout
 	a.botToken = conf.Telegram.Token
 	a.botChatId = conf.Telegram.ChatId
 

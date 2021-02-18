@@ -15,6 +15,7 @@ type MyApp struct {
 	imapUsername string
 	imapPassword string
 	imapServer   string
+	imapRefresh  time.Duration
 	bot          *tgbotapi.BotAPI
 	botToken     string
 	botChatId    int64
@@ -68,7 +69,11 @@ func main() {
 	criteria := imap.NewSearchCriteria()
 	criteria.WithoutFlags = []string{"\\Seen"}
 
-	for range time.NewTicker(2 * time.Second).C {
+	for range time.NewTicker(App.imapRefresh * time.Second).C {
+		err := App.imapClient.Noop()
+		if err != nil {
+			log.Fatal(err)
+		}
 		App.searchNewMessages(criteria)
 	}
 
