@@ -66,7 +66,7 @@ func (a *MyApp) ReadNewMail() {
 		// Если UID-ов нет, то новых писем нет
 		if len(uids) == 0 {
 			log.Info("No new messages yet.")
-			return
+			continue
 		}
 
 		log.Info("There are ", len(uids), " new messages")

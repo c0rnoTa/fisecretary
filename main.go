@@ -29,7 +29,9 @@ func main() {
 	go App.RunTelegramWorker()
 
 	// Запускаем воркер работы с IMAP
-	go App.RunImapWorker()
+	App.RunImapWorker()
+
+	// TODO Сюда можно добавить проверку статуса подключений и их восстановление в цикле
 
 	log.Info("Done!")
 }
