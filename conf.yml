@@ -4,6 +4,7 @@ imap:
   username: "username"
   password: "secret"
   server: "imap.yandex.ru:993"
+  refresh: 5
 
 telegram:
   token: "bottoken"
