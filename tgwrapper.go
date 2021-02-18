@@ -7,8 +7,8 @@ import (
 	"time"
 )
 
-func (a *MyApp) sendTelegramMessage(text string) {
-	_, err := a.bot.Send(tgbotapi.NewMessage(a.botChatId, text))
+func (a *MyApp) sendTelegramMessage(chatid int64, text string) {
+	_, err := a.bot.Send(tgbotapi.NewMessage(chatid, text))
 	if err != nil {
 		log.Panic(err)
 	}
@@ -45,10 +45,10 @@ func (a *MyApp) receiveTelegramMessage() {
 			case "status":
 				reply = "\u2705 Я в порядке!"
 			default:
-				reply = "I don't know that command"
+				reply = "Не понимаю, чего ты хочешь."
 			}
 
-			a.sendTelegramMessage(reply)
+			a.sendTelegramMessage(update.Message.Chat.ID, reply)
 		}
 	}
 }

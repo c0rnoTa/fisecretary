@@ -39,6 +39,7 @@ func main() {
 	}
 
 	log.Infof("Authorized on account: %s (@%s)", App.bot.Self.FirstName, App.bot.Self.UserName)
+	App.sendTelegramMessage(App.botChatId, "\u270c Привет! Я в сети :)")
 	go App.receiveTelegramMessage()
 
 	log.Info("Connecting to imap://", App.imapServer)

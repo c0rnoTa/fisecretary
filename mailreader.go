@@ -35,7 +35,7 @@ func (a *MyApp) searchNewMails(criteria *imap.SearchCriteria) {
 
 	for msg := range messages {
 		log.Info("* " + msg.Envelope.Subject)
-		a.sendTelegramMessage(msg.Envelope.Subject)
+		a.sendTelegramMessage(a.botChatId, msg.Envelope.Subject)
 		curSeq := new(imap.SeqSet)
 		curSeq.AddNum(msg.SeqNum)
 		err := a.imapClient.Store(curSeq, imap.FormatFlagsOp(imap.AddFlags, true), []interface{}{imap.SeenFlag}, nil)
