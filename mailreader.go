@@ -5,7 +5,12 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func (a *MyApp) searchNewMessages(criteria *imap.SearchCriteria) {
+func (a *MyApp) searchNewMails(criteria *imap.SearchCriteria) {
+	err := a.imapClient.Noop()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	uids, err := a.imapClient.Search(criteria)
 	if err != nil {
 		log.Error(err)
@@ -30,7 +35,7 @@ func (a *MyApp) searchNewMessages(criteria *imap.SearchCriteria) {
 
 	for msg := range messages {
 		log.Info("* " + msg.Envelope.Subject)
-		a.sendMessage(msg.Envelope.Subject)
+		a.sendTelegramMessage(msg.Envelope.Subject)
 		curSeq := new(imap.SeqSet)
 		curSeq.AddNum(msg.SeqNum)
 		err := a.imapClient.Store(curSeq, imap.FormatFlagsOp(imap.AddFlags, true), []interface{}{imap.SeenFlag}, nil)

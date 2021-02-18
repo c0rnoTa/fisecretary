@@ -39,6 +39,7 @@ func main() {
 	}
 
 	log.Infof("Authorized on account: %s (@%s)", App.bot.Self.FirstName, App.bot.Self.UserName)
+	go App.receiveTelegramMessage()
 
 	log.Info("Connecting to imap://", App.imapServer)
 
@@ -74,7 +75,7 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		App.searchNewMessages(criteria)
+		App.searchNewMails(criteria)
 	}
 
 	log.Info("Done!")
