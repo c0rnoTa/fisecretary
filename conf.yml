@@ -4,3 +4,7 @@ imap:
   username: "username"
   password: "secret"
   server: "imap.yandex.ru:993"
+
+telegram:
+  token: "bottoken"
+  chatid: 123456789
