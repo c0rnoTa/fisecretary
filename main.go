@@ -8,36 +8,50 @@ import (
 	"github.com/emersion/go-imap/client"
 )
 
+type MyApp struct {
+	logLevel     log.Level
+	imapClient   *client.Client
+	imapUsername string
+	imapPassword string
+	imapServer   string
+}
+
 func main() {
-	log.Println("Connecting to server...")
+	var App MyApp
+	var err error
+
+	App.GetConfigYaml("conf.yml")
+
+	log.SetLevel(App.logLevel)
+
+	log.Info("Connecting to server...")
 
 	// Connect to server
-	c, err := client.DialTLS("imap.yandex.ru:993", nil)
+	App.imapClient, err = client.DialTLS(App.imapServer, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("Connected")
+	log.Info("Connected")
 
 	// Don't forget to logout
-	defer c.Logout()
+	defer App.imapClient.Logout()
 
-	log.Print(c.State())
 	// Login
-	if err := c.Login("username", "password"); err != nil {
+	if err := App.imapClient.Login(App.imapUsername, App.imapPassword); err != nil {
 		log.Fatal(err)
 	}
-	log.Println("Logged in")
+	log.Info("Logged in")
 
 	// List mailboxes
 	mailboxes := make(chan *imap.MailboxInfo, 10)
 	done := make(chan error, 1)
 	go func() {
-		done <- c.List("", "*", mailboxes)
+		done <- App.imapClient.List("", "*", mailboxes)
 	}()
 
-	log.Println("Mailboxes:")
+	log.Info("Mailboxes:")
 	for m := range mailboxes {
-		log.Println("* " + m.Name)
+		log.Info("* " + m.Name)
 	}
 
 	if err := <-done; err != nil {
@@ -45,11 +59,11 @@ func main() {
 	}
 
 	// Select INBOX
-	mbox, err := c.Select("INBOX", false)
+	mbox, err := App.imapClient.Select("INBOX", false)
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("Flags for INBOX:", mbox.Flags)
+	log.Info("Flags for INBOX:", mbox.Flags)
 
 	criteria := imap.NewSearchCriteria()
 	criteria.WithoutFlags = []string{"\\Seen"}
@@ -59,32 +73,32 @@ func main() {
 	done = make(chan error, 1)
 
 	go func() {
-		uids, err = c.Search(criteria)
+		uids, err = App.imapClient.Search(criteria)
 		if err != nil {
-			log.Println(err)
+			log.Error(err)
 		}
 
 		if len(uids) == 0 {
-			log.Print("No new messages in go routine!")
+			log.Info("No new messages in go routine!")
 			time.Sleep(10 * time.Second)
 			return
 		}
 
-		log.Print("There are ", len(uids), " new messages")
+		log.Info("There are ", len(uids), " new messages")
 		seqset := new(imap.SeqSet)
 		seqset.AddNum(uids...)
 
 		go func() {
-			done <- c.Fetch(seqset, []imap.FetchItem{imap.FetchEnvelope}, messages)
+			done <- App.imapClient.Fetch(seqset, []imap.FetchItem{imap.FetchEnvelope}, messages)
 		}()
 
 	}()
 
 	for msg := range messages {
-		log.Println("* " + msg.Envelope.Subject)
+		log.Info("* " + msg.Envelope.Subject)
 		curSeq := new(imap.SeqSet)
 		curSeq.AddNum(msg.SeqNum)
-		err := c.Store(curSeq, imap.FormatFlagsOp(imap.AddFlags, true), []interface{}{imap.SeenFlag}, nil)
+		err := App.imapClient.Store(curSeq, imap.FormatFlagsOp(imap.AddFlags, true), []interface{}{imap.SeenFlag}, nil)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -96,5 +110,5 @@ func main() {
 
 	time.Sleep(10 * time.Second)
 
-	log.Println("Done!")
+	log.Info("Done!")
 }

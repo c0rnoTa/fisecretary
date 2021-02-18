@@ -1,0 +1,6 @@
+loglevel: "info"
+
+imap:
+  username: "username"
+  password: "secret"
+  server: "imap.yandex.ru:993"
