@@ -53,40 +53,8 @@ func main() {
 	criteria := imap.NewSearchCriteria()
 	criteria.WithoutFlags = []string{"\\Seen"}
 
-	uids, err := App.imapClient.Search(criteria)
-	if err != nil {
-		log.Error(err)
-	}
-	if len(uids) == 0 {
-		log.Info("No new messages here.")
-		time.Sleep(5 * time.Second)
-		return
-	}
-
-	log.Info("There are ", len(uids), " new messages")
-	seqset := new(imap.SeqSet)
-	seqset.AddNum(uids...)
-
-	messages := make(chan *imap.Message, 10)
-
-	go func() {
-		err := App.imapClient.Fetch(seqset, []imap.FetchItem{imap.FetchEnvelope}, messages)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}()
-
-	for msg := range messages {
-		if msg == nil {
-			continue
-		}
-		log.Info("* " + msg.Envelope.Subject)
-		curSeq := new(imap.SeqSet)
-		curSeq.AddNum(msg.SeqNum)
-		err := App.imapClient.Store(curSeq, imap.FormatFlagsOp(imap.AddFlags, true), []interface{}{imap.SeenFlag}, nil)
-		if err != nil {
-			log.Fatal(err)
-		}
+	for range time.NewTicker(2 * time.Second).C {
+		App.searchNewMessages(criteria)
 	}
 
 	log.Info("Done!")
