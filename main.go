@@ -24,7 +24,7 @@ func main() {
 
 	log.SetLevel(App.logLevel)
 
-	log.Info("Connecting to server...")
+	log.Info("Connecting to imap://", App.imapServer)
 
 	// Connect to server
 	App.imapClient, err = client.DialTLS(App.imapServer, nil)
@@ -40,61 +40,46 @@ func main() {
 	if err := App.imapClient.Login(App.imapUsername, App.imapPassword); err != nil {
 		log.Fatal(err)
 	}
-	log.Info("Logged in")
-
-	// List mailboxes
-	mailboxes := make(chan *imap.MailboxInfo, 10)
-	done := make(chan error, 1)
-	go func() {
-		done <- App.imapClient.List("", "*", mailboxes)
-	}()
-
-	log.Info("Mailboxes:")
-	for m := range mailboxes {
-		log.Info("* " + m.Name)
-	}
-
-	if err := <-done; err != nil {
-		log.Fatal(err)
-	}
+	log.Info("Logged in as ", App.imapUsername)
 
 	// Select INBOX
-	mbox, err := App.imapClient.Select("INBOX", false)
+	log.Info("Select INBOX mailbox")
+	_, err = App.imapClient.Select("INBOX", false)
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Info("Flags for INBOX:", mbox.Flags)
+	//log.Info("Flags for INBOX:", mbox.Flags)
 
 	criteria := imap.NewSearchCriteria()
 	criteria.WithoutFlags = []string{"\\Seen"}
 
-	var uids []uint32
+	uids, err := App.imapClient.Search(criteria)
+	if err != nil {
+		log.Error(err)
+	}
+	if len(uids) == 0 {
+		log.Info("No new messages here.")
+		time.Sleep(5 * time.Second)
+		return
+	}
+
+	log.Info("There are ", len(uids), " new messages")
+	seqset := new(imap.SeqSet)
+	seqset.AddNum(uids...)
+
 	messages := make(chan *imap.Message, 10)
-	done = make(chan error, 1)
 
 	go func() {
-		uids, err = App.imapClient.Search(criteria)
+		err := App.imapClient.Fetch(seqset, []imap.FetchItem{imap.FetchEnvelope}, messages)
 		if err != nil {
-			log.Error(err)
+			log.Fatal(err)
 		}
-
-		if len(uids) == 0 {
-			log.Info("No new messages in go routine!")
-			time.Sleep(10 * time.Second)
-			return
-		}
-
-		log.Info("There are ", len(uids), " new messages")
-		seqset := new(imap.SeqSet)
-		seqset.AddNum(uids...)
-
-		go func() {
-			done <- App.imapClient.Fetch(seqset, []imap.FetchItem{imap.FetchEnvelope}, messages)
-		}()
-
 	}()
 
 	for msg := range messages {
+		if msg == nil {
+			continue
+		}
 		log.Info("* " + msg.Envelope.Subject)
 		curSeq := new(imap.SeqSet)
 		curSeq.AddNum(msg.SeqNum)
@@ -103,12 +88,6 @@ func main() {
 			log.Fatal(err)
 		}
 	}
-
-	if err := <-done; err != nil {
-		log.Fatal(err)
-	}
-
-	time.Sleep(10 * time.Second)
 
 	log.Info("Done!")
 }
