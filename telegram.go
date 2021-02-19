@@ -27,7 +27,7 @@ func (a *MyApp) RunTelegramWorker() {
 	}
 
 	// Уведомляем коллег о запуске сервиса
-	a.sendTelegramMessage(a.config.Telegram.ChatId, "\u270c Привет! Я в сети ;)")
+	a.sendTelegramMessage(a.config.Telegram.ChatId, msgStatusConnected)
 
 	// Дальше висим и слушаем все входящие сообщения
 	a.listenTelegramMessages()
@@ -79,10 +79,10 @@ func (a *MyApp) listenTelegramMessages() {
 		if update.Message.IsCommand() {
 			var reply string
 			switch update.Message.Command() {
-			case "status":
-				reply = "\u2705 Я в порядке!"
+			case tgCommandStatus:
+				reply = msgStatusAlive
 			default:
-				reply = "Не понимаю, что ты от меня хочешь :("
+				reply = msgUnknownCommand
 			}
 			a.sendTelegramMessage(update.Message.Chat.ID, reply)
 		}

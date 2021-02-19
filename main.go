@@ -20,7 +20,7 @@ func main() {
 	var App MyApp
 
 	// Читаем конфиг
-	App.GetConfigYaml("conf.yml")
+	App.GetConfigYaml(configFileName)
 
 	// Устанавливаем уровень журналирования событий приложения
 	log.SetLevel(App.logLevel)

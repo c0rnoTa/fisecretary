@@ -47,15 +47,15 @@ func (a *MyApp) GetConfigYaml(filename string) {
 func setLogLevel(confLogLevel string) log.Level {
 	var result log.Level
 	switch confLogLevel {
-	case "debug":
+	case configLogDebug:
 		result = log.DebugLevel
-	case "info":
+	case configLogInfo:
 		result = log.InfoLevel
-	case "warn":
+	case configLogWarn:
 		result = log.WarnLevel
-	case "error":
+	case configLogError:
 		result = log.ErrorLevel
-	case "fatal":
+	case configLogFatal:
 		result = log.FatalLevel
 	default:
 		result = log.InfoLevel

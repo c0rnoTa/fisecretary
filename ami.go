@@ -30,7 +30,7 @@ func (a *MyApp) RunAsteriskWorker() {
 		log.Fatalf("PBX connection error [%s]: %s", amiConn, message)
 	})
 
-	err := a.ami.RegisterHandler("CEL", a.CELHandler)
+	err := a.ami.RegisterHandler(celTypeName, a.CELHandler)
 	if err != nil {
 		log.Error("AMI could not register handler: ", err)
 	}
@@ -39,17 +39,17 @@ func (a *MyApp) RunAsteriskWorker() {
 
 func (a *MyApp) CELHandler(m map[string]string) {
 	log.Printf("CEL EVENT Received: %v\n", m)
-	fields, err := getFields(m, "EventName", "CallerIDnum", "Context")
+	fields, err := getFields(m, celFieldEventName, celFieldCallerIDnum, celFieldContext)
 	if err != nil {
 		log.Error("Error in CEL handler: ", err)
 		return
 	}
-	log.Debug("Event CEL ", fields["EventName"], " received")
+	log.Debug("Event CEL ", fields[celFieldEventName], " received")
 
-	switch fields["EventName"] {
-	case "CHAN_START":
-		if fields["Context"] == "incoming" {
-			a.sendTelegramMessage(a.config.Telegram.ChatId, fmt.Sprintf("Входящий звонок с номера %s", fields["CallerIDnum"]))
+	switch fields[celFieldEventName] {
+	case celEventChanStart:
+		if fields[celFieldContext] == asteriskContextIncoming {
+			a.sendTelegramMessage(a.config.Telegram.ChatId, fmt.Sprintf(msgCallIncoming, fields[celFieldCallerIDnum]))
 		}
 	}
 

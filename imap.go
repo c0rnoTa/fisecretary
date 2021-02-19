@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/emersion/go-imap"
 	"github.com/emersion/go-imap/client"
 	log "github.com/sirupsen/logrus"
@@ -37,8 +38,8 @@ func (a *MyApp) RunImapWorker() {
 	log.Info("IMAP Logged in as ", a.config.Imap.Username)
 
 	// Выбираем папку INBOX на почтовом сервере
-	log.Info("Select INBOX mailbox")
-	_, err = a.imapClient.Select("INBOX", false)
+	log.Infof("Select %s mailbox", imapFolder)
+	_, err = a.imapClient.Select(imapFolder, false)
 	if err != nil {
 		log.Error("IMAP Mailbox folder select returned error: ", err)
 	}
@@ -53,7 +54,7 @@ func (a *MyApp) ReadNewMail() {
 
 	// Установка критериев отбора писем в папке
 	criteria := imap.NewSearchCriteria()
-	criteria.WithoutFlags = []string{"\\Seen"}
+	criteria.WithoutFlags = []string{imapFlagSeen}
 
 	// В бесконечном цыкле проверяем почтовый ящик на новые письма
 	for range time.NewTicker(time.Duration(a.config.Imap.RefreshTimeout) * time.Second).C {
@@ -92,7 +93,7 @@ func (a *MyApp) ReadNewMail() {
 		for msg := range messages {
 			log.Info("* " + msg.Envelope.Subject)
 			// Уведомляем коллег о полученном письме
-			a.sendTelegramMessage(a.config.Telegram.ChatId, msg.Envelope.Subject)
+			a.sendTelegramMessage(a.config.Telegram.ChatId, fmt.Sprintf(msgMailIncoming, msg.Envelope.Subject))
 			// Помечаем письмо как прочитанное
 			curSeq := new(imap.SeqSet)
 			curSeq.AddNum(msg.SeqNum)
