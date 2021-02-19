@@ -23,6 +23,7 @@ type Config struct {
 		Port     int    `yaml:"port"`
 		Username string `yaml:"username"`
 		Password string `yaml:"password"`
+		Context  string `yaml:"context"`
 	} `yaml:"asterisk"`
 	LogLevel string `yaml:"loglevel"`
 }

@@ -39,7 +39,7 @@ func (a *MyApp) RunAsteriskWorker() {
 
 func (a *MyApp) CELHandler(m map[string]string) {
 	log.Printf("CEL EVENT Received: %v\n", m)
-	fields, err := getFields(m, celFieldEventName, celFieldCallerIDnum, celFieldContext)
+	fields, err := getFields(m, celFieldEventName)
 	if err != nil {
 		log.Error("Error in CEL handler: ", err)
 		return
@@ -48,7 +48,12 @@ func (a *MyApp) CELHandler(m map[string]string) {
 
 	switch fields[celFieldEventName] {
 	case celEventChanStart:
-		if fields[celFieldContext] == asteriskContextIncoming {
+		fields, err := getFields(m, celFieldCallerIDnum, celFieldContext, celFieldUniqueId, celFieldLinkedId)
+		if err != nil {
+			log.Error("Error in parsing CEL ", celEventChanStart, ": ", err)
+			return
+		}
+		if fields[celFieldContext] == a.config.Asterisk.Context && fields[celFieldUniqueId] == fields[celFieldLinkedId] {
 			a.sendTelegramMessage(a.config.Telegram.ChatId, fmt.Sprintf(msgCallIncoming, fields[celFieldCallerIDnum]))
 		}
 	}

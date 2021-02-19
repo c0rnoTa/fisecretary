@@ -15,14 +15,12 @@ const (
 	celFieldEventName   = "EventName"
 	celFieldCallerIDnum = "CallerIDnum"
 	celFieldContext     = "Context"
+	celFieldUniqueId    = "UniqueID"
+	celFieldLinkedId    = "LinkedID"
 )
 const (
 	imapFolder   = "INBOX"
 	imapFlagSeen = "\\Seen"
-)
-
-const (
-	asteriskContextIncoming = "incoming"
 )
 
 const (
