@@ -29,9 +29,14 @@ func main() {
 	go App.RunTelegramWorker()
 
 	// Запускаем воркер работы с IMAP
-	App.RunImapWorker()
+	go App.RunImapWorker()
+
+	// Запускаем подключение к Asterisk
+	go App.RunAsteriskWorker()
 
 	// TODO Сюда можно добавить проверку статуса подключений и их восстановление в цикле
+	ch := make(chan bool)
+	<-ch
 
 	log.Info("Done!")
 }

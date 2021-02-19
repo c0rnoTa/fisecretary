@@ -17,25 +17,30 @@ func (a *MyApp) RunImapWorker() {
 	log.Info("Connecting to imap://", a.config.Imap.Server)
 	a.imapClient, err = client.DialTLS(a.config.Imap.Server, nil)
 	if err != nil {
-		log.Fatal(err)
+		log.Error("IMAP TLS connection returned error: ", err)
 	}
 	log.Info("IMAP Connected")
 
 	// Don't forget to logout from IMAP server
-	defer a.imapClient.Logout()
+	defer func() {
+		err = a.imapClient.Logout()
+		if err != nil {
+			log.Error("IMAP Logout error: ", err)
+		}
+	}()
 
 	// Login
 	err = a.imapClient.Login(a.config.Imap.Username, a.config.Imap.Password)
 	if err != nil {
-		log.Fatal(err)
+		log.Error("IMAP login returned error: ", err)
 	}
-	log.Info("Logged in as ", a.config.Imap.Username)
+	log.Info("IMAP Logged in as ", a.config.Imap.Username)
 
 	// Выбираем папку INBOX на почтовом сервере
 	log.Info("Select INBOX mailbox")
 	_, err = a.imapClient.Select("INBOX", false)
 	if err != nil {
-		log.Fatal(err)
+		log.Error("IMAP Mailbox folder select returned error: ", err)
 	}
 
 	// Дальше в бесконечном цикле ищем новые сообщения и увдомляем о них коллег
@@ -55,17 +60,17 @@ func (a *MyApp) ReadNewMail() {
 		// Чекаем новые письма
 		err := a.imapClient.Noop()
 		if err != nil {
-			log.Fatal(err)
+			log.Error("IMAP Mailbox refresh returned error: ", err)
 		}
 
 		// Получаем UID-ы непрочитанных писем
 		uids, err := a.imapClient.Search(criteria)
 		if err != nil {
-			log.Error(err)
+			log.Error("IMAP mail search returned error: ", err)
 		}
 		// Если UID-ов нет, то новых писем нет
 		if len(uids) == 0 {
-			log.Info("No new messages yet.")
+			log.Debug("No new messages yet.")
 			continue
 		}
 
@@ -79,7 +84,7 @@ func (a *MyApp) ReadNewMail() {
 		go func() {
 			err := a.imapClient.Fetch(seqset, []imap.FetchItem{imap.FetchEnvelope}, messages)
 			if err != nil {
-				log.Fatal(err)
+				log.Error("IMAP mail fetch error: ", err)
 			}
 		}()
 
@@ -93,7 +98,7 @@ func (a *MyApp) ReadNewMail() {
 			curSeq.AddNum(msg.SeqNum)
 			err := a.imapClient.Store(curSeq, imap.FormatFlagsOp(imap.AddFlags, true), []interface{}{imap.SeenFlag}, nil)
 			if err != nil {
-				log.Fatal(err)
+				log.Error("IMAP mark mail as readed error: ", err)
 			}
 		}
 	}
