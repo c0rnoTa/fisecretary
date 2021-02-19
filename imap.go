@@ -19,6 +19,7 @@ func (a *MyApp) RunImapWorker() {
 	a.imapClient, err = client.DialTLS(a.config.Imap.Server, nil)
 	if err != nil {
 		log.Error("IMAP TLS connection returned error: ", err)
+		return
 	}
 	log.Info("IMAP Connected")
 
@@ -27,6 +28,10 @@ func (a *MyApp) RunImapWorker() {
 		err = a.imapClient.Logout()
 		if err != nil {
 			log.Error("IMAP Logout error: ", err)
+		}
+		err = a.imapClient.Terminate()
+		if err != nil {
+			log.Error("IMAP Terminate error: ", err)
 		}
 	}()
 
@@ -46,6 +51,7 @@ func (a *MyApp) RunImapWorker() {
 
 	// Дальше в бесконечном цикле ищем новые сообщения и увдомляем о них коллег
 	a.ReadNewMail()
+	return
 }
 
 // Уведомляем о новых письмах
@@ -62,12 +68,15 @@ func (a *MyApp) ReadNewMail() {
 		err := a.imapClient.Noop()
 		if err != nil {
 			log.Error("IMAP Mailbox refresh returned error: ", err)
+			log.Debug("IMAP connection status: ", a.imapClient.State())
+			return
 		}
 
 		// Получаем UID-ы непрочитанных писем
 		uids, err := a.imapClient.Search(criteria)
 		if err != nil {
 			log.Error("IMAP mail search returned error: ", err)
+			return
 		}
 		// Если UID-ов нет, то новых писем нет
 		if len(uids) == 0 {

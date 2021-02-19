@@ -29,7 +29,12 @@ func main() {
 	go App.RunTelegramWorker()
 
 	// Запускаем воркер работы с IMAP
-	go App.RunImapWorker()
+	go func() {
+		// Будет переподключаться, если разорвалось соединение
+		for {
+			App.RunImapWorker()
+		}
+	}()
 
 	// Запускаем подключение к Asterisk
 	go App.RunAsteriskWorker()
