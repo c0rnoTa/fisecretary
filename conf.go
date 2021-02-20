@@ -25,6 +25,10 @@ type Config struct {
 		Password string `yaml:"password"`
 		Context  string `yaml:"context"`
 	} `yaml:"asterisk"`
+	Crm struct {
+		Url     string `yaml:"url"`
+		Timeout int    `yaml:"timeout"`
+	} `yaml:"crm"`
 	LogLevel string `yaml:"loglevel"`
 }
 

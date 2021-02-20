@@ -54,7 +54,14 @@ func (a *MyApp) CELHandler(m map[string]string) {
 			return
 		}
 		if fields[celFieldContext] == a.config.Asterisk.Context && fields[celFieldUniqueId] == fields[celFieldLinkedId] {
-			a.sendTelegramMessage(a.config.Telegram.ChatId, fmt.Sprintf(msgCallIncoming, fields[celFieldCallerIDnum]))
+			msg := fmt.Sprintf(msgCallIncoming, fields[celFieldCallerIDnum])
+			callerName, err := a.getCrmName(fields[celFieldCallerIDnum])
+			if err != nil {
+				log.Error("Error in requesting CRM: ", err)
+			} else {
+				msg = fmt.Sprintf("%s\n%s", msg, callerName)
+			}
+			a.sendTelegramMessage(a.config.Telegram.ChatId, msg)
 		}
 	}
 
