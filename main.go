@@ -29,15 +29,19 @@ func main() {
 	go App.RunTelegramWorker()
 
 	// Запускаем воркер работы с IMAP
-	go func() {
-		// Будет переподключаться, если разорвалось соединение
-		for {
-			App.RunImapWorker()
-		}
-	}()
+	if App.config.Imap.Enable {
+		go func() {
+			// Будет переподключаться, если разорвалось соединение
+			for {
+				App.RunImapWorker()
+			}
+		}()
+	}
 
 	// Запускаем подключение к Asterisk
-	go App.RunAsteriskWorker()
+	if App.config.Asterisk.Enable {
+		go App.RunAsteriskWorker()
+	}
 
 	// TODO Сюда можно добавить проверку статуса подключений и их восстановление в цикле
 	ch := make(chan bool)

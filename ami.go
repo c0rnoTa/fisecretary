@@ -55,11 +55,13 @@ func (a *MyApp) CELHandler(m map[string]string) {
 		}
 		if fields[celFieldContext] == a.config.Asterisk.Context && fields[celFieldUniqueId] == fields[celFieldLinkedId] {
 			msg := fmt.Sprintf(msgCallIncoming, fields[celFieldCallerIDnum])
-			callerName, err := a.getCrmName(fields[celFieldCallerIDnum])
-			if err != nil {
-				log.Error("Error in requesting CRM: ", err)
-			} else {
-				msg = fmt.Sprintf("%s\n%s", msg, callerName)
+			if a.config.Crm.Enable {
+				callerName, err := a.getCrmName(fields[celFieldCallerIDnum])
+				if err != nil {
+					log.Error("Error in requesting CRM: ", err)
+				} else {
+					msg = fmt.Sprintf("%s\n%s", msg, callerName)
+				}
 			}
 			a.sendTelegramMessage(a.config.Telegram.ChatId, msg)
 		}

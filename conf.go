@@ -9,6 +9,7 @@ import (
 // Структура конфигурационного файла
 type Config struct {
 	Imap struct {
+		Enable         bool   `yaml:"enable"`
 		Username       string `yaml:"username"`
 		Password       string `yaml:"password"`
 		Server         string `yaml:"server"`
@@ -19,6 +20,7 @@ type Config struct {
 		ChatId int64  `yaml:"chatid"`
 	} `yaml:"telegram"`
 	Asterisk struct {
+		Enable   bool   `yaml:"enable"`
 		Host     string `yaml:"host"`
 		Port     int    `yaml:"port"`
 		Username string `yaml:"username"`
@@ -26,6 +28,7 @@ type Config struct {
 		Context  string `yaml:"context"`
 	} `yaml:"asterisk"`
 	Crm struct {
+		Enable  bool   `yaml:"enable"`
 		Url     string `yaml:"url"`
 		Timeout int    `yaml:"timeout"`
 	} `yaml:"crm"`
