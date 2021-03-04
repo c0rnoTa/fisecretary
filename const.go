@@ -28,9 +28,10 @@ const (
 )
 
 const (
-	msgCallIncoming    = "Входящий звонок с номера %s"
-	msgMailIncoming    = "%s"
+	msgCallIncoming    = "\u260e Входящий звонок с номера %s"
+	msgCallPerson      = "\xF0\x9F\x91\xA4 %s"
+	msgMailIncoming    = "\xF0\x9F\x93\xA8 %s"
 	msgStatusConnected = "\u270c Привет! Я в сети ;)"
-	msgStatusAlive     = "\u2705 Я в порядке!"
-	msgUnknownCommand  = "Не понимаю, что ты от меня хочешь :("
+	msgStatusAlive     = "\xF0\x9F\x99\x8B Я в порядке!"
+	msgUnknownCommand  = "Не понимаю, что ты от меня хочешь \xF0\x9F\x99\x87"
 )

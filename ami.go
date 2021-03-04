@@ -60,7 +60,7 @@ func (a *MyApp) CELHandler(m map[string]string) {
 				if err != nil {
 					log.Error("Error in requesting CRM: ", err)
 				} else {
-					msg = fmt.Sprintf("%s\n%s", msg, callerName)
+					msg = fmt.Sprintf("%s\n"+msgCallPerson, msg, callerName)
 				}
 			}
 			a.sendTelegramMessage(a.config.Telegram.ChatId, msg)
