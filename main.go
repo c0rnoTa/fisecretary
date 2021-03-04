@@ -16,8 +16,13 @@ type MyApp struct {
 	ami        *amigo.Amigo
 }
 
+// will be filled at buid phase
+var gitHash, buildTime string
+
 func main() {
 	var App MyApp
+
+	log.Info("fisecretary version ", gitHash, " build at ", buildTime)
 
 	// Читаем конфиг
 	App.GetConfigYaml(configFileName)
