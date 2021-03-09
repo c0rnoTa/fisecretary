@@ -14,6 +14,7 @@ type Config struct {
 		Password       string `yaml:"password"`
 		Server         string `yaml:"server"`
 		RefreshTimeout int64  `yaml:"refresh"`
+		DeleteMessages bool   `yaml:"delete"`
 	} `yaml:"imap"`
 	Telegram struct {
 		Token  string `yaml:"token"`

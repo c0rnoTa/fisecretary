@@ -106,9 +106,14 @@ func (a *MyApp) ReadNewMail() {
 			// Помечаем письмо как прочитанное
 			curSeq := new(imap.SeqSet)
 			curSeq.AddNum(msg.SeqNum)
-			err := a.imapClient.Store(curSeq, imap.FormatFlagsOp(imap.AddFlags, true), []interface{}{imap.SeenFlag}, nil)
+			markFlag := imap.SeenFlag
+			// или удаляем письмо
+			if a.config.Imap.DeleteMessages {
+				markFlag = imap.DeletedFlag
+			}
+			err := a.imapClient.Store(curSeq, imap.FormatFlagsOp(imap.AddFlags, true), []interface{}{markFlag}, nil)
 			if err != nil {
-				log.Error("IMAP mark mail as readed error: ", err)
+				log.Error("IMAP mark mail as ", markFlag, " error: ", err)
 			}
 		}
 	}
