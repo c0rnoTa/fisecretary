@@ -34,6 +34,17 @@ func (a *MyApp) RunTelegramWorker() {
 
 }
 
+// Ответ на сообщение в телеграм
+func (a *MyApp) replyTelegramMessage(chatid int64, msgid int, text string) {
+	log.Infof("Telegram reply to msg %d [%d] %s", msgid, chatid, text)
+	msg := tgbotapi.NewMessage(chatid, text)
+	msg.ReplyToMessageID = msgid
+	_, err := a.bot.Send(msg)
+	if err != nil {
+		log.Panic(err)
+	}
+}
+
 // Отправка сообщения в телеграм
 func (a *MyApp) sendTelegramMessage(chatid int64, text string) {
 	log.Infof("Telegram send [%d] %s", chatid, text)
