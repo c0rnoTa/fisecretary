@@ -74,17 +74,9 @@ func (a *MyApp) listenTelegramMessages() {
 
 		log.Printf("Telegram read [%s][%s] %s", chatId, update.Message.From.UserName, update.Message.Text)
 
-		// TODO вынести команды в отдельные функции
 		// Обрабатываем команды
 		if update.Message.IsCommand() {
-			var reply string
-			switch update.Message.Command() {
-			case tgCommandStatus:
-				reply = msgStatusAlive
-			default:
-				reply = msgUnknownCommand
-			}
-			a.sendTelegramMessage(update.Message.Chat.ID, reply)
+			RouteCommands(a, update)
 		}
 	}
 }
