@@ -3,7 +3,6 @@ package main
 import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	log "github.com/sirupsen/logrus"
-	"strconv"
 	"strings"
 )
 
@@ -37,22 +36,18 @@ func cmdTimer(a *MyApp, update tgbotapi.Update) {
 		return
 	}
 
-	// Первый аргумент - это число, счетчик
-	duration, err := strconv.Atoi(args[0])
-	if err != nil {
-		log.Debug("Timer could not be started because ", err)
+	// Парсим аргументы команды запуска таймера
+	duration, measure := TimerParseArgs(args)
+
+	// Если вернулся 0, то в аргументах передан мусор, а значит запустить таймер нельзя
+	if duration == 0 {
+		log.Debug("Timer could not be started because invalid args were passed")
 		a.sendTelegramMessage(update.Message.Chat.ID, msgTimerFailed)
 		return
 	}
-	// Второй аргумент - это шаг счётчика, измерение. По-дефолту - минуты
-	measure := TimerDefaultMeasure
-
-	if len(args) > 1 {
-		measure = args[1]
-	}
 
 	// Запустить таймер
-	go StartTimer(a, update, duration, measure)
+	go TimerStart(a, update, duration, measure)
 
 }
 

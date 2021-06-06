@@ -46,7 +46,7 @@ const (
 	msgStatusAlive     = "\xF0\x9F\x99\x8B Я в порядке!"
 	msgUnknownCommand  = "Не понимаю, что ты от меня хочешь \xF0\x9F\x99\x87"
 	msgTimerStarted    = "\xF0\x9F\x91\x8C Напомню через %d %s"
-	msgTimerFinished   = "\xE2\x8F\xB0 Напоминалка - время вышло!"
+	msgTimerFinished   = "\xE2\x8F\xB0 Напоминалка. Время вышло!"
 	msgTimerFailed     = "Команду /timer надо использовать хотя бы с 1 аргументом. \n " +
 		"Первый аргумент - это время, через которое нужно напомнить. \n" +
 		"Второй аргумент (не обязательно) - это в каких единицах измеряется время: " + timerSeconds + " (секунды), " + timerMinutes + " (минуты, по-умолчанию), " + timerHours + " (часы). \n" +
