@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	log "github.com/sirupsen/logrus"
 	"strconv"
@@ -24,7 +23,6 @@ func RouteCommands(a *MyApp, update tgbotapi.Update) {
 	}
 }
 
-// TODO: переделать на карту
 // Напоминалка
 func cmdTimer(a *MyApp, update tgbotapi.Update) {
 	log.SetLevel(a.logLevel)
@@ -47,22 +45,15 @@ func cmdTimer(a *MyApp, update tgbotapi.Update) {
 		return
 	}
 	// Второй аргумент - это шаг счётчика, измерение. По-дефолту - минуты
-	measure := timerMinutes
-	measureDescription := timerMinutesDescription
+	measure := TimerDefaultMeasure
+
 	if len(args) > 1 {
 		measure = args[1]
 	}
-	switch measure {
-	case timerSeconds:
-		measureDescription = timerSecondsDescription
-	case timerMinutes:
-		measureDescription = timerMinutesDescription
-	case timerHours:
-		measureDescription = timerHoursDescription
-	}
+
 	// Запустить таймер
 	go StartTimer(a, update, duration, measure)
-	a.sendTelegramMessage(update.Message.Chat.ID, fmt.Sprintf(msgTimerStarted, duration, measureDescription))
+
 }
 
 // Обработчик команд по-умолчанию. Если команда не известна

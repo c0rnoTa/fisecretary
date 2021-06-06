@@ -30,11 +30,11 @@ const (
 
 const (
 	timerSeconds            = "s"
-	timerSecondsDescription = "секунд"
+	timerSecondsDescription = "сек"
 	timerMinutes            = "m"
-	timerMinutesDescription = "минут"
+	timerMinutesDescription = "мин"
 	timerHours              = "h"
-	timerHoursDescription   = "часов"
+	timerHoursDescription   = "час"
 )
 
 //TODO добавить смайлов
