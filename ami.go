@@ -38,17 +38,18 @@ func (a *MyApp) RunAsteriskWorker() {
 }
 
 func (a *MyApp) CELHandler(m map[string]string) {
-	log.Printf("CEL EVENT Received: %v\n", m)
+	log.SetLevel(a.logLevel)
+	log.Debugf("CEL EVENT Received: %v\n", m)
 	fields, err := getFields(m, celFieldEventName)
 	if err != nil {
 		log.Error("Error in CEL handler: ", err)
 		return
 	}
-	log.Debug("Event CEL ", fields[celFieldEventName], " received")
 
 	switch fields[celFieldEventName] {
 	case celEventChanStart:
 		fields, err := getFields(m, celFieldCallerIDnum, celFieldContext, celFieldUniqueId, celFieldLinkedId)
+		log.Info("CEL ", celEventChanStart, " received")
 		if err != nil {
 			log.Error("Error in parsing CEL ", celEventChanStart, ": ", err)
 			return
@@ -67,8 +68,9 @@ func (a *MyApp) CELHandler(m map[string]string) {
 			}
 			a.sendTelegramMessage(a.config.Telegram.ChatId, msg)
 		}
+	default:
+		log.Debug("Event CEL ", fields[celFieldEventName], " received")
 	}
-
 }
 
 func getFields(m map[string]string, fields ...string) (map[string]string, error) {

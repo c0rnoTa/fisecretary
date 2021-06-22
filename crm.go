@@ -9,6 +9,7 @@ import (
 )
 
 func (a *MyApp) getCrmName(phone string) (string, error) {
+	log.SetLevel(a.logLevel)
 	log.Info("CRM request caller name for number: ", phone)
 	client := http.Client{
 		Timeout: time.Duration(a.config.Crm.Timeout) * time.Second,
