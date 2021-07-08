@@ -55,7 +55,7 @@ func TimerParseArgs(args []string) (int, string) {
 
 	// Формат первого аргумента
 	// Может быть либо просто число, либо число с суффиксом
-	r, _ := regexp.Compile(`(^\d+)(s|m|h)?`)
+	r, _ := regexp.Compile(`(^\d+)[smh]?`)
 
 	// Первый аргумент - это число, счетчик
 	duration := 0
@@ -63,20 +63,22 @@ func TimerParseArgs(args []string) (int, string) {
 	measure := TimerDefaultMeasure
 
 	firstArg := r.FindStringSubmatch(args[0])
-	//fmt.Printf("!!!!DEBUG!!! %d",len(firstArg))
 
-	switch len(firstArg) {
-	case 2:
-		duration, _ = strconv.Atoi(firstArg[0])
-	case 3:
+	// Если первый аргумент парсится в счётчик и шаг, т.е. попадает под регулярку и шаг не пустой
+	if len(firstArg[2]) == 1 {
+		// То дастаём из одного аргумента значения шага и счётчика
 		duration, _ = strconv.Atoi(firstArg[1])
 		measure = firstArg[2]
-	default:
 		return duration, measure
 	}
 
+	// Если первый аргумент содержит только число, то присваиваем его счётчику
+	duration, _ = strconv.Atoi(firstArg[0])
+
+	// Вторым аргументом идёт шаг
 	if len(args) > 1 {
 		measure = args[1]
 	}
+
 	return duration, measure
 }
