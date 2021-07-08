@@ -55,7 +55,7 @@ func TimerParseArgs(args []string) (int, string) {
 
 	// Формат первого аргумента
 	// Может быть либо просто число, либо число с суффиксом
-	r, _ := regexp.Compile(`(^\d+)[smh]?`)
+	r, _ := regexp.Compile(`(^\d+)(s|m|h)?`)
 
 	// Первый аргумент - это число, счетчик
 	duration := 0
