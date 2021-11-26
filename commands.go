@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	log "github.com/sirupsen/logrus"
 	"strings"
@@ -17,6 +18,8 @@ func RouteCommands(a *MyApp, update tgbotapi.Update) {
 		cmdStatus(a, update)
 	case tgCommandTimer:
 		cmdTimer(a, update)
+	case tgCommandWho:
+		cmdWho(a, update)
 	default:
 		cmdUnknown(a, update)
 	}
@@ -49,6 +52,41 @@ func cmdTimer(a *MyApp, update tgbotapi.Update) {
 	// Запустить таймер
 	go TimerStart(a, update, duration, measure)
 
+}
+
+// Поиск в справочнике
+func cmdWho(a *MyApp, update tgbotapi.Update) {
+	log.SetLevel(a.logLevel)
+
+	if !a.config.Crm.Enable {
+		log.Debug("CRM module disabled")
+		a.sendTelegramMessage(update.Message.Chat.ID, msgWhoNoCRM)
+		return
+	}
+
+	// Получаем аргументы команды
+	args := strings.Fields(update.Message.CommandArguments())
+	log.Debug("Telegram command is who with ", len(args), " arguments")
+
+	if len(args) == 0 {
+		log.Debug("Who command could not be started because no args were passed")
+		a.sendTelegramMessage(update.Message.Chat.ID, msgWhoFailed)
+		return
+	}
+
+	// Парсим аргументы обращения к who
+	phoneNumber := args[0]
+
+	msg := fmt.Sprintf(msgWhoReply, phoneNumber)
+	callerName, err := a.getCrmName(phoneNumber)
+	if err != nil {
+		log.Error("Error in requesting CRM: ", err)
+	} else {
+		if callerName != "" {
+			msg = fmt.Sprintf("%s\n"+msgCallPerson, msg, callerName)
+		}
+	}
+	a.sendTelegramMessage(a.config.Telegram.ChatId, msg)
 }
 
 // Обработчик команд по-умолчанию. Если команда не известна
